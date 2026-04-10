@@ -1,0 +1,15 @@
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\bin\Debug\net10.0\MortgagePro.Application.deps.json
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\bin\Debug\net10.0\MortgagePro.Application.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\bin\Debug\net10.0\MortgagePro.Application.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\bin\Debug\net10.0\MortgagePro.Domain.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\bin\Debug\net10.0\MortgagePro.Domain.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.csproj.AssemblyReference.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.AssemblyInfoInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.AssemblyInfo.cs
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.csproj.CoreCompileInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\Mortgage.B50198C6.Up2Date
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\refint\MortgagePro.Application.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\MortgagePro.Application.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Application\obj\Debug\net10.0\ref\MortgagePro.Application.dll

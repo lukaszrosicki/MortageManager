@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="MortgagePro.Application/MortgagePro.Application.csproj" />
+  <Project Path="MortgagePro.Domain/MortgagePro.Domain.csproj" />
+  <Project Path="MortgagePro.Infrastructure/MortgagePro.Infrastructure.csproj" />
+  <Project Path="MortgagePro.Tests/MortgagePro.Tests.csproj" />
+  <Project Path="MortgagePro.WebUI/MortgagePro.WebUI.csproj" />
+</Solution>

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mortgage-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mortgage_app
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - mortgage_db_data:/app/Data
+
+volumes:
+  mortgage_db_data:

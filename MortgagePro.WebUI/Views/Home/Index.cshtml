@@ -1,0 +1,388 @@
+@{
+    ViewData["Title"] = "Mortgage Pro - Strona Główna";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Pro - Kontrola nad Kredytem (Surfer-style)</title>
+    <!-- Czcionki zbliżone do stylu nowoczesnych apek (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        .purple-gradient-card {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-[#fafafa] font-sans text-slate-800 antialiased overflow-x-hidden selection:bg-purple-200 selection:text-purple-900">
+
+<!-- Nawigacja -->
+<nav class="absolute w-full z-10 transition-colors pt-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="glass-card rounded-2xl flex items-center justify-between h-16 px-6 relative z-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                </div>
+                <span class="text-slate-900 font-extrabold text-2xl tracking-tight">Mortgage Pro</span>
+            </div>
+            <div class="hidden md:flex gap-6 items-center">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <a href="/Home/Simulator" class="text-sm font-semibold text-slate-600 hover:text-purple-600 transition-colors">Pełny Symulator</a>
+                    <a href="/Home/Documentation" class="text-sm font-semibold text-slate-600 hover:text-purple-600 transition-colors">Dokumentacja</a>
+                    <div class="flex items-center gap-4 border-l border-slate-200 pl-6">
+                        <span class="text-sm tracking-tight font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            @User.Identity.Name
+                        </span>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="inline m-0">
+                            <button type="submit" class="text-sm font-bold text-slate-500 hover:text-rose-600 transition-colors">Wyloguj</button>
+                        </form>
+                        <a href="/Home/Simulator" class="text-sm bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold shadow-md transition-all transform hover:-translate-y-0.5 whitespace-nowrap">Otwórz Aplikację</a>
+                    </div>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="text-sm font-semibold text-slate-600 hover:text-purple-600 transition-colors">Pełny Symulator</a>
+                    <a href="/Home/Documentation" class="text-sm font-semibold text-slate-600 hover:text-purple-600 transition-colors">Dokumentacja</a>
+                    <div class="flex items-center gap-4 border-l border-slate-200 pl-6">
+                        <a href="/Account/Login" class="text-sm font-bold text-slate-900 hover:text-purple-600 transition-colors whitespace-nowrap">Zaloguj się</a>
+                        <a href="/Account/Register" class="text-sm bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold shadow-md transition-all transform hover:-translate-y-0.5 whitespace-nowrap">Załóż Konto</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Sekcja Hero z kalkulatorem -->
+<section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden" x-data="liteSimulator()">
+    <!-- Abstract Orbs Background -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+        <div class="absolute right-[-10%] top-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-purple-400 to-indigo-300 opacity-30 blur-[100px] rounded-full"></div>
+        <div class="absolute left-[-10%] top-[20%] w-[500px] h-[500px] bg-gradient-to-tr from-teal-200 to-emerald-200 opacity-40 blur-[120px] rounded-full"></div>
+        <div class="absolute right-[20%] bottom-[-20%] w-[700px] h-[700px] bg-gradient-to-t from-pink-200 to-purple-300 opacity-30 blur-[120px] rounded-full"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-4xl mx-auto mb-16">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
+                Zmiażdż Swój Kredyt.<br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500">Zaoszczędź Tysiące.</span>
+            </h1>
+            <p class="mt-4 text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+                Pożegnaj się z toksycznymi odsetkami bankowymi dzięki precyzyjnie wymierzonej strategii kuli śnieżnej. Wypróbuj superszybki kalkulator poniżej.
+            </p>
+        </div>
+
+        <!-- Uproszczony Kalkulator -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
+            
+            <!-- Lewa strona - Formularz -->
+            <div class="glass-card p-8 rounded-3xl z-20 relative">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Szybka Wycena
+                </h2>
+                
+                <div class="space-y-5">
+                    <!-- Kwota i Okres -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Kwota Kredytu</label>
+                            <input type="number" x-model.number.debounce.300ms="form.amount" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-semibold text-slate-800 text-lg shadow-sm" />
+                            <div class="text-[11px] font-bold text-purple-600 mt-1 pl-1" x-text="formatCurrency(form.amount)"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Okres (M-ce)</label>
+                            <input type="number" x-model.number.debounce.300ms="form.months" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-semibold text-slate-800 text-lg shadow-sm" />
+                        </div>
+                    </div>
+                    
+                    <!-- Procent i Nadpłata -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Oprocent. (%)</label>
+                            <input type="number" step="0.1" x-model.number.debounce.300ms="form.rate" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-semibold text-slate-800 text-lg shadow-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-700 uppercase mb-2 tracking-wider">Nadpłata co msc</label>
+                            <input type="number" x-model.number.debounce.300ms="form.overpayment" class="w-full px-4 py-3 bg-purple-50 border border-purple-200 text-purple-900 rounded-xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-600 outline-none transition-all font-bold text-lg shadow-sm" />
+                            <div class="text-[11px] font-bold text-purple-600 mt-1 pl-1" x-text="formatCurrency(form.overpayment)"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Rodzaj Rat</label>
+                        <select x-model="form.isDecreasing" class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-semibold text-slate-800 text-lg shadow-sm">
+                            <option value="false">Równe (domyślny)</option>
+                            <option value="true">Malejące</option>
+                        </select>
+                    </div>
+                    
+                    <div class="pt-4 flex justify-between space-x-2">
+                         <a href="/Home/Simulator" class="w-full block text-center bg-slate-900 hover:bg-slate-800 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-xl shadow-slate-900/20 transition-all transform hover:-translate-y-1">Przejdź do Pełnego Symulatora</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prawa strona - Fioletowe Pole Wynikowe -->
+            <div class="purple-gradient-card text-white p-8 md:p-10 rounded-3xl flex flex-col justify-center gap-6 relative overflow-hidden h-full transform lg:scale-105 z-20">
+                <!-- Abs. decor -->
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-24 -left-20 w-64 h-64 bg-indigo-900 opacity-40 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10 text-center" x-show="schedule.length === 0" x-cloak>
+                    <div class="animate-pulse flex flex-col items-center">
+                        <div class="h-10 w-10 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
+                        <p class="font-semibold text-purple-200">Łączenie z algorytmem SignalR...</p>
+                    </div>
+                </div>
+
+                <div class="relative z-10 flex flex-col h-full justify-between gap-6" x-show="schedule.length > 0" x-cloak>
+                    <div>
+                        <h3 class="text-purple-200 text-sm font-bold mb-2 uppercase tracking-widest opacity-80">Całkowity Koszt Odsetek (Bazowo)</h3>
+                        <p class="text-2xl md:text-3xl font-mono text-purple-100/70 line-through decoration-rose-400 decoration-4" x-text="formatCurrency(baselineInterest)"></p>
+                    </div>
+
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-inner">
+                        <h3 class="text-teal-300 text-sm font-extrabold mb-2 uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Oszczędzasz Z Nami
+                        </h3>
+                        <p class="text-5xl md:text-6xl font-extrabold text-white drop-shadow-xl" x-text="formatCurrency(savings)"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                        <div class="border-t border-purple-400/30 pt-4">
+                            <h3 class="text-purple-200 text-xs font-bold mb-1 uppercase tracking-wider">Skrócenie Okresu</h3>
+                            <p class="text-2xl font-bold text-white"><span x-text="shortenedMonths"></span> <span class="text-lg font-medium opacity-80">msc</span></p>
+                        </div>
+                        <div class="border-t border-purple-400/30 pt-4">
+                            <h3 class="text-purple-200 text-xs font-bold mb-1 uppercase tracking-wider">Nowe Odsetki</h3>
+                            <p class="text-2xl font-bold text-white drop-shadow-md" x-text="formatCurrency(totalInterest)"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Features (SurferSEO clean style) -->
+<section class="py-24 bg-white relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Odzyskaj kontrolę nad długiem</h2>
+            <p class="mt-4 text-lg text-slate-500 font-medium">Technologia optymalizacji portfela zamknięta w zjawiskowym interfejsie.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="glass-card p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-slate-100">
+                <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Reaktywny Silnik SignalR</h3>
+                <p class="text-slate-600 leading-relaxed font-medium">Błyskawiczne przeliczenia. Każda zmiana suwaka dociera bezpośrednio do potężnego matematycznego silnika C#, by w &lt;50ms zaktualizować cały twój DOM.</p>
+            </div>
+            
+            <div class="glass-card p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-slate-100">
+                <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-emerald-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Efekt Kuli Śnieżnej</h3>
+                <p class="text-slate-600 leading-relaxed font-medium">Spraw by każdy zaoszczędzony grosz wracał do inwestycji. Zobacz jak agresywne nadpłacanie dewastuje czas spłaty dzięki kapitalizacji Fill-Down.</p>
+            </div>
+            
+            <div class="glass-card p-10 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-slate-100">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Persystencja Danych</h3>
+                <p class="text-slate-600 leading-relaxed font-medium">Baza SQLite ubezpiecza twoje sesje. Koniec z utratą scenariuszy w przypadku restartu przeglądarki - Identity dba by Twoje warianty były zawsze po ręką.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Porównanie -->
+<section class="py-20 bg-slate-50 relative z-10 border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+         <div class="text-center mb-12">
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Dlaczego Mortgage Pro?</h2>
+            <p class="mt-4 text-lg text-slate-500 font-medium">Brak reklam, brak zapytań o numer telefonu, potężniejsza matematyka niż u komercyjnej konkurencji.</p>
+        </div>
+        
+        <div class="overflow-x-auto shadow-xl rounded-2xl border border-slate-200 bg-white">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-indigo-600 text-white uppercase text-xs font-bold tracking-wider">
+                    <tr>
+                        <th class="p-6">Funkcja</th>
+                        <th class="p-6 bg-indigo-700 text-center w-48">MORTGAGE PRO</th>
+                        <th class="p-6 text-center text-indigo-200 w-48">Developeruch</th>
+                        <th class="p-6 text-center text-indigo-200 w-48">Lendi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700 font-medium pb-2">
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-medium text-slate-500 text-sm">Przeliczanie harmonogramu bazowego</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-emerald-500"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-emerald-500"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-indigo-100">
+                        <td class="p-5 font-medium text-slate-500 text-sm">Raty Równe i Malejące z nadpłatami</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-emerald-500"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-emerald-500"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                    </tr>
+                    
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-indigo-700">Scenariusz "Kula Śnieżna" (Fill-Down)</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-indigo-700">Strategia "Maksymalna Rata" (auto-balans)</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-indigo-700">Masowa zmiana nadpłat wybranego okresu w locie</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-indigo-700">Zapisywanie wyliczeń do konta</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5 font-bold text-indigo-700">Wolne od spamu i doradców kredytowych</td>
+                        <td class="p-5 text-center text-emerald-500 bg-emerald-50/30"><svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                        <td class="p-5 text-center text-slate-300"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Footer Demo -->
+<footer class="bg-[#fafafa] py-12 text-center border-t border-slate-200">
+    <div class="mb-4 text-slate-600 font-semibold text-sm">
+        Autorzy - Studenci Informatyki na Uniwersytecie Vizja:<br>
+        <span class="text-indigo-600 font-bold block mt-1">Daria Panchenko &nbsp;&bull;&nbsp; Marta Starek-Piasny &nbsp;&bull;&nbsp; Łukasz Rosicki</span>
+    </div>
+    <p class="text-slate-400 text-xs font-medium opacity-80">&copy; @DateTime.Now.Year Mortgage Pro</p>
+</footer>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('liteSimulator', () => ({
+            isConnected: false,
+            connection: null,
+            schedule: [],
+            baselineInterest: 0,
+            
+            form: {
+                amount: 500000,
+                months: 360,
+                rate: 6.5,
+                overpayment: 1000,
+                isDecreasing: "false"
+            },
+
+            get totalInterest() { return this.schedule.reduce((acc, row) => acc + row.interestPortion, 0); },
+            get savings() { return Math.max(0, this.baselineInterest - this.totalInterest); },
+            get shortenedMonths() { return Math.max(0, this.form.months - this.schedule.length); },
+
+            computeBaseline(amount, months, rate, isDecreasing) {
+                let monthlyRate = rate / 100 / 12;
+                if (monthlyRate === 0) return 0;
+                if (String(isDecreasing) === "true") {
+                    let totalInterest = 0;
+                    let princ = amount / months;
+                    let remaining = amount;
+                    for(let i=0; i<months; i++){
+                        totalInterest += remaining * monthlyRate;
+                        remaining -= princ;
+                    }
+                    return totalInterest;
+                } else {
+                    let baseInst = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+                    return (baseInst * months) - amount;
+                }
+            },
+
+            init() {
+                this.connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/mortgageHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                this.connection.on("ScheduleUpdated", (newSchedule) => {
+                    this.schedule = newSchedule;
+                });
+
+                this.connection.start().then(() => {
+                    this.isConnected = true;
+                    this.generateInitial(); 
+                }).catch(err => console.error("Błąd SignalR", err));
+
+                this.$watch('form', () => { this.generateInitial(); }, { deep: true });
+            },
+
+            generateInitial() {
+                if(this.isConnected) {
+                    let amount = parseFloat(this.form.amount) || 0;
+                    let months = parseInt(this.form.months) || 1;
+                    let rate = parseFloat(this.form.rate) || 0;
+                    let overpayment = parseFloat(this.form.overpayment) || 0;
+                    let isDecreasing = String(this.form.isDecreasing) === "true";
+                    
+                    this.baselineInterest = this.computeBaseline(amount, months, rate, isDecreasing);
+                    this.connection.invoke("InitializeMortgage", amount, months, rate, true, overpayment, isDecreasing, false, null).catch(e => console.log(e));
+                }
+            },
+
+            formatCurrency(val) { return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val); }
+        }));
+    });
+</script>
+
+</body>
+</html>

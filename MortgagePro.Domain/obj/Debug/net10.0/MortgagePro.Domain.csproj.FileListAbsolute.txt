@@ -1,0 +1,11 @@
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\bin\Debug\net10.0\MortgagePro.Domain.deps.json
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\bin\Debug\net10.0\MortgagePro.Domain.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\bin\Debug\net10.0\MortgagePro.Domain.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.AssemblyInfoInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.AssemblyInfo.cs
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.csproj.CoreCompileInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\refint\MortgagePro.Domain.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\MortgagePro.Domain.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Domain\obj\Debug\net10.0\ref\MortgagePro.Domain.dll

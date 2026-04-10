@@ -1,0 +1,570 @@
+@{
+    ViewData["Title"] = "Mortgage Pro - Harmonogram";
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Pro Reactive Schedule</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex text-slate-300 shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <span class="text-xl font-bold text-white tracking-tight">Mortgage Pro</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="/" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white shadow-sm transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Strona Główna
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Simulator" class="flex items-center px-6 py-3 bg-indigo-600 text-white font-medium shadow-sm transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        Symulator
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Documentation" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Dokumentacja
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="border-t border-slate-800">
+            <ul class="space-y-1 p-4">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <li>
+                        <a href="/Account/Manage" class="flex items-center px-4 py-2 hover:bg-slate-800 hover:text-indigo-300 transition-colors text-sm rounded-md font-medium">Zarządzanie kontem</a>
+                    </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a href="/Admin/Index" class="flex items-center px-4 py-2 hover:bg-slate-800 text-rose-400 hover:text-rose-300 transition-colors text-sm rounded-md font-semibold">Panel Admina</a>
+                        </li>
+                    }
+                    <li>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="inline w-full">
+                            <button type="submit" class="w-full text-left flex items-center px-4 py-2 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-sm rounded-md">Wyloguj się</button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a href="/Account/Login" class="flex items-center px-4 py-2 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-sm rounded-md">Zaloguj się</a>
+                    </li>
+                }
+            </ul>
+            <div class="bg-slate-800 rounded-lg p-4 text-xs mx-4 mb-4">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <span class="block text-emerald-400 font-semibold mb-1 truncate">Zalogowany: @User.Identity.Name</span>
+                }
+                else
+                {
+                    <span class="block text-amber-400 font-semibold mb-1">Niezalogowany (Tryb Read-only dla Bazy)</span>
+                }
+                <div class="flex items-center gap-2 text-white mt-2">
+                    <span class="w-2 h-2 rounded-full animate-pulse bg-emerald-500"></span>
+                    SignalR Aktywny
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8" x-data="mortgageApp()">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Kalkulacja Kredytu</h1>
+                <p class="text-slate-500 mt-1 text-sm font-medium">Reaktywny Model z obsługą Pamięci Scenariuszy (SQL)</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3">
+               <button x-show="schedule.length > 0" @@click="exportCSV()" class="text-sm bg-emerald-600 text-white hover:bg-emerald-500 px-4 py-2 rounded-lg font-medium shadow-sm flex items-center gap-2 transition-colors">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                   Eksport do CSV
+               </button>
+            @if (User.Identity!.IsAuthenticated)
+            {
+               <div x-show="schedule.length > 0" class="flex flex-wrap items-center gap-2 bg-slate-800 p-2 pl-3 rounded-lg ml-0 md:ml-2 mt-2 md:mt-0">
+                   <div class="flex items-center gap-2">
+                       <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider" x-text="activeScenarioId ? 'Wczytany wariant:' : 'Nowy wariant:'"></span>
+                       <input type="text" x-model="scenarioName" placeholder="Nazwa wariantu..." class="px-3 py-1.5 rounded bg-slate-700 text-white text-sm outline-none w-48 border border-slate-600 focus:border-indigo-400 transition-colors">
+                   </div>
+                   <div class="flex items-center gap-2 border-l border-slate-700 pl-2">
+                       <button x-show="activeScenarioId" @@click="updateActiveScenario()" class="text-sm bg-amber-600 text-white hover:bg-amber-500 px-4 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-colors">
+                           Nadpisz w bazie
+                       </button>
+                       <button @@click="saveAsNewScenario()" class="text-sm bg-indigo-600 text-white hover:bg-indigo-500 px-4 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-colors">
+                           <span x-text="activeScenarioId ? 'Zapisz jako nowy' : 'Zapisz w SQL'"></span>
+                       </button>
+                   </div>
+               </div>
+            }
+            </div>
+        </div>
+
+        <template x-if="scenarios.length > 0">
+            <div class="bg-white rounded-xl shadow-sm border border-emerald-200 p-4 mb-6 flex flex-wrap gap-3 items-center">
+                <span class="text-xs font-bold text-emerald-800 uppercase mr-2 tracking-wider">Twoja Baza (SQLite):</span>
+                <template x-for="(scenario, index) in scenarios" :key="scenario.id || index">
+                    <div class="flex items-center bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <button @@click="loadScenario(scenario)" class="px-3 py-1.5 font-semibold text-xs transition-colors hover:bg-emerald-100 border-r border-emerald-200 flex items-center gap-1" title="Załaduj wariant">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span x-text="scenario.name"></span>
+                        </button>
+                        <button @@click="deleteScenario(scenario.id, index)" class="px-2 py-1.5 text-xs text-rose-500 hover:bg-rose-100 transition-colors" title="Usuń z bazy">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </template>
+        
+        <div x-show="scenarios.length === 0" class="mb-6 p-4 rounded-xl border border-dashed border-slate-300 text-slate-500 text-sm italic">
+            @(User.Identity!.IsAuthenticated ? "Brak zapisanych symulacji dla Twojego profilu. Użyj przycisku Zapisz Zrzut u góry." : "Zaloguj się aby zapisywać i wracać do konfiguracji symulacji z SQLite.")
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-6">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+                 <h2 class="text-lg font-bold text-slate-700">Parametry Wejściowe (Live Sync)</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kwota (Start)</label>
+                    <input type="number" x-model.number.debounce.300ms="form.amount" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                    <div class="text-[10px] text-indigo-500 mt-1 font-mono tracking-wider" x-text="formatCurrency(form.amount)"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Miesiące</label>
+                    <input type="number" x-model.number.debounce.300ms="form.months" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                    <div class="text-[10px] text-indigo-500 mt-1 font-mono tracking-wider" x-text="form.months + ' m-cy'"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Oprocent. (%)</label>
+                    <input type="number" step="0.1" x-model.number.debounce.300ms="form.rate" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                    <div class="text-[10px] text-indigo-500 mt-1 font-mono tracking-wider" x-text="form.rate + ' %'"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-emerald-600 uppercase mb-1">Rodzaj Rat</label>
+                    <select x-model="form.isDecreasing" class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-medium text-emerald-800">
+                        <option value="false">Równe</option>
+                        <option value="true">Malejące</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-indigo-600 uppercase mb-1">Tryb Nadpłaty</label>
+                    <select x-model="form.overpaymentMode" class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-indigo-800 tracking-tight">
+                        <option value="fixed">Standardowa Kwota</option>
+                        <option value="snowball">Standardowa + Kula Śnieżna</option>
+                        <option value="max">Maksymalna Rata Mies.</option>
+                    </select>
+                </div>
+                <div>
+                     <template x-if="form.overpaymentMode === 'max'">
+                         <label class="block text-xs font-bold text-rose-600 uppercase mb-1 drop-shadow-sm truncate">Maksymalna Rata (Msc)</label>
+                     </template>
+                     <template x-if="form.overpaymentMode !== 'max'">
+                         <label class="block text-xs font-semibold text-slate-500 uppercase mb-1 truncate" x-text="form.overpaymentMode === 'snowball' ? 'Nadpłata Bazowa' : 'Stała Nadpłata'"></label>
+                     </template>
+
+                    <input type="number" x-model.number.debounce.300ms="form.overpayment" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold" />
+                    <div class="text-[10px] text-indigo-500 mt-1 font-mono tracking-wider" x-text="formatCurrency(form.overpayment)"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-indigo-600 uppercase mb-1 text-nowrap truncate">Strategia Obniżki</label>
+                    <select x-model="form.shortenTerm" class="w-full px-3 py-2 border border-indigo-300 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-indigo-800">
+                        <option value="false">Zmniejszaj Ratę</option>
+                        <option value="true">Skracaj Okres</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div x-show="form.overpaymentMode === 'max' && schedule.length > 0 && form.overpayment < schedule[0].baseInstallment" class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded text-rose-700 text-sm font-medium">
+                <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Uwaga! Wskazana Maksymalna Rata (<span x-text="form.overpayment"></span> PLN) jest niższa niż bazowa rata kapitałowo-odsetkowa (<span x-text="formatCurrency(schedule[0].baseInstallment)"></span> PLN). Nadpłaty nie będą wykonywane!
+            </div>
+            <div x-show="form.overpaymentMode === 'snowball' && form.shortenTerm === 'true'" class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded text-amber-700 text-sm font-medium">
+                <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Wskazówka: „Kula śnieżna” działa najlepiej przy strategii Zmniejszania Raty (gdy uwolniony kapitał podbija wektor nadpłaty bazowej). Wybrałeś skracanie okresu przez co Kula Śnieżna operuje w jałowym punkcie bazowym (rata nie spada).
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6" x-show="schedule.length > 0" x-cloak>
+            <div class="col-span-1 lg:col-span-3 bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-md font-bold text-slate-700">Wykres Hybrydowy</h3>
+                    <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded" x-text="'Rat pozostało: ' + schedule.length"></span>
+                </div>
+                <div class="relative h-[24rem] w-full">
+                    <canvas id="mortgageChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-700 to-indigo-900 text-white p-6 rounded-xl shadow-md flex flex-col justify-center gap-4 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500 rounded-full opacity-30 blur-xl"></div>
+                <div class="relative z-10">
+                    <h3 class="text-indigo-200 text-xs font-semibold mb-1 uppercase tracking-wider">Bazowe Odsetki (Bez Nadpłat)</h3>
+                    <p class="text-lg font-mono text-indigo-200 line-through decoration-rose-500 decoration-2" x-text="formatCurrency(baselineInterest)"></p>
+                </div>
+                <div class="relative z-10 bg-indigo-950/50 p-3 rounded-lg border border-indigo-500/30">
+                    <h3 class="text-emerald-300 text-xs font-bold mb-1 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Twoja Oszczędność
+                    </h3>
+                    <p class="text-2xl font-extrabold text-emerald-400 drop-shadow-md" x-text="formatCurrency(savings)"></p>
+                </div>
+                <div class="relative z-10 pt-2 border-t border-indigo-500/50 mt-2">
+                    <h3 class="text-sky-200 text-xs font-semibold mb-1 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Okres Kredytowania Krótszy O:
+                    </h3>
+                    <p class="text-xl font-bold text-sky-400" x-text="shortenedMonths + ' miesięcy'"></p>
+                </div>
+                <div class="relative z-10 border-t border-indigo-500/50 pt-2 mt-2">
+                    <h3 class="text-indigo-200 text-xs font-semibold mb-1">Pozostałe Odsetki po algorytmie</h3>
+                    <p class="text-lg font-bold text-indigo-300" x-text="formatCurrency(totalInterest)"></p>
+                </div>
+                <div class="relative z-10 pt-1">
+                    <h3 class="text-indigo-200 text-xs font-semibold mb-1">Pieniądze wrzucone ręcznie w kapitał</h3>
+                    <p class="text-lg font-bold text-indigo-300" x-text="formatCurrency(totalOverpaid)"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden" x-show="schedule.length > 0" x-cloak>
+            <div class="overflow-x-auto max-h-[600px] overflow-y-auto w-full">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-slate-500 uppercase bg-slate-100 border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+                        <tr>
+                            <th class="px-6 py-4 font-bold">Msc</th>
+                            <th class="px-6 py-4 font-bold">Saldo do Spłaty</th>
+                            <th class="px-6 py-4 font-bold">Rata Bazowa</th>
+                            <th class="px-6 py-4 font-bold text-blue-600">Oprocentowanie (%)</th>
+                            <th class="px-6 py-4 font-bold" :class="form.overpaymentMode === 'max' ? 'text-rose-600' : 'text-indigo-600'">Nadpłata Realna (PLN)</th>
+                            <th class="px-6 py-4 font-bold">Kapitał</th>
+                            <th class="px-6 py-4 font-bold">Odsetki</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="row in schedule" :key="row.monthId">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-400" x-text="row.monthId"></td>
+                                <td class="px-6 py-4 text-slate-700 font-semibold" x-text="formatCurrency(row.remainingBalance)"></td>
+                                <td class="px-6 py-4 text-slate-500" x-text="formatCurrency(row.baseInstallment)"></td>
+                                
+                                <td class="px-4 py-3 min-w-[140px]">
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" step="0.1"
+                                               class="w-20 px-2 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-blue-700 font-medium bg-blue-50/50"
+                                               x-model.number="row.localInterestRate" />
+                                    </div>
+                                    <div x-show="row.localInterestRate !== row.interestRate" class="mt-1 flex flex-col gap-1">
+                                        <button @@click="applySingle(row, 'rate')" class="text-[9px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded shadow-sm">✓ Tylko ten msc</button>
+                                        <button @@click="applyCascade(row, 'rate')" class="text-[9px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded shadow-sm">↓ Zastosuj do końca</button>
+                                        <button @@click="row.localInterestRate = row.interestRate" class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-600 px-2 py-0.5 rounded transition">Przywróć</button>
+                                    </div>
+                                </td>
+
+                                <td class="px-4 py-3 min-w-[200px]">
+                                    <div class="flex items-center gap-2">
+                                        <div x-show="form.overpaymentMode !== 'max'" class="w-20 shrink-0">
+                                            <input type="number" 
+                                                   class="w-full px-2 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-700 font-medium bg-indigo-50/50"
+                                                   x-model.number="row.localOverpayment" />
+                                        </div>
+                                        <div x-show="form.overpaymentMode !== 'fixed'" class="flex-1">
+                                            <p class="font-bold text-slate-600 text-center text-xs px-2 py-1.5 bg-slate-100 border border-slate-200 rounded whitespace-nowrap" x-text="formatCurrency(row.computedOverpayment)"></p>
+                                        </div>
+                                    </div>
+                                    <div x-show="row.localOverpayment !== row.overpayment && form.overpaymentMode !== 'max'" class="mt-1 flex flex-col gap-1 w-full max-w-[180px]">
+                                        <button @@click="applySingle(row, 'overpayment')" class="text-[9px] bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded shadow-sm">✓ Tylko ten msc</button>
+                                        <button @@click="applyCascade(row, 'overpayment')" class="text-[9px] bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0.5 rounded shadow-sm">↓ Zastosuj do końca</button>
+                                        <button @@click="row.localOverpayment = row.overpayment" class="text-[9px] bg-slate-200 hover:bg-slate-300 text-slate-600 px-2 py-0.5 rounded transition">Przywróć</button>
+                                    </div>
+                                </td>
+                                
+                                <td class="px-6 py-4 text-emerald-600 font-semibold" x-text="formatCurrency(row.principalPortion)"></td>
+                                <td class="px-6 py-4 text-rose-600 font-semibold" x-text="formatCurrency(row.interestPortion)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('mortgageApp', () => ({
+                isConnected: false,
+                connection: null,
+                schedule: [],
+                scenarios: [],
+                chart: null,
+                baselineInterest: 0,
+                isHydratingForm: false, 
+                scenarioName: '',
+                activeScenarioId: null,
+                form: {
+                    amount: 500000,
+                    months: 240,
+                    rate: 5.0,
+                    overpayment: 0,
+                    overpaymentMode: 'fixed',
+                    shortenTerm: 'false',
+                    isDecreasing: 'false'
+                },
+
+                get totalInterest() { return this.schedule.reduce((acc, row) => acc + row.interestPortion, 0); },
+                get totalOverpaid() { return this.schedule.reduce((acc, row) => acc + row.computedOverpayment, 0); },
+                get savings() { return Math.max(0, this.baselineInterest - this.totalInterest); },
+                get shortenedMonths() { return Math.max(0, this.form.months - this.schedule.length); },
+
+                computeBaseline(amount, months, rate, isDecreasing) {
+                    let monthlyRate = rate / 100 / 12;
+                    if (isDecreasing) {
+                        let principal = amount / months;
+                        let totalInterest = 0;
+                        let balance = amount;
+                        for(let i=0; i<months; i++) {
+                            totalInterest += balance * monthlyRate;
+                            balance -= principal;
+                        }
+                        return totalInterest;
+                    } else {
+                        if (monthlyRate === 0) return 0;
+                        let baseInst = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+                        return (baseInst * months) - amount;
+                    }
+                },
+
+                init() {
+                    this.connection = new signalR.HubConnectionBuilder()
+                        .withUrl("/mortgageHub")
+                        .withAutomaticReconnect()
+                        .build();
+
+                    this.connection.on("ScheduleUpdated", (newSchedule) => {
+                        this.schedule = newSchedule.map(r => ({ ...r, localOverpayment: r.overpayment, localInterestRate: r.interestRate }));
+                        this.rebuildChart();
+                    });
+
+                    this.connection.start().then(() => {
+                        this.isConnected = true;
+                        this.generateInitial(); 
+                    }).catch(err => console.error("Błąd SignalR", err));
+
+                    this.$watch('form', () => { if(!this.isHydratingForm) this.generateInitial(); }, { deep: true });
+
+                    fetch('/api/scenario').then(r => { if(r.ok) return r.json(); return []; }).then(data => {
+                        this.scenarios = data;
+                    }).catch(() => {});
+                },
+
+                refreshScenarios() {
+                    fetch('/api/scenario').then(r => { if(r.ok) return r.json(); return []; }).then(data => {
+                        this.scenarios = data;
+                    }).catch(() => {});
+                },
+
+                generateInitial() {
+                    if(this.isConnected) {
+                        let amount = parseFloat(this.form.amount) || 0;
+                        let months = parseInt(this.form.months) || 1;
+                        let rate = parseFloat(this.form.rate) || 0;
+                        let isDecreasing = this.form.isDecreasing === 'true';
+                        let shortenTerm = this.form.shortenTerm === 'true';
+                        
+                        let overpaymentParam = 0;
+                        let maxInstallmentParam = null;
+                        let isSnowball = false;
+
+                        let formOverpayment = parseFloat(this.form.overpayment);
+                        if (isNaN(formOverpayment)) formOverpayment = 0;
+
+                        if (this.form.overpaymentMode === 'max') { maxInstallmentParam = formOverpayment; } 
+                        else if (this.form.overpaymentMode === 'snowball') { isSnowball = true; overpaymentParam = formOverpayment; } 
+                        else { overpaymentParam = formOverpayment; }
+                        
+                        this.baselineInterest = this.computeBaseline(amount, months, rate, isDecreasing);
+                        this.connection.invoke("InitializeMortgage", amount, months, rate, shortenTerm, overpaymentParam, isDecreasing, isSnowball, maxInstallmentParam).catch(e=>console.log(e));
+                    }
+                },
+
+                saveScenario() {
+                    const name = this.scenarioName.trim() || ("Wariant " + new Date().toLocaleTimeString());
+                    if (this.activeScenarioId) {
+                        this.updateActiveScenario();
+                        return;
+                    }
+                    const payload = { 
+                        name: name, 
+                        baselineInterest: this.baselineInterest, 
+                        data: { 
+                            form: JSON.parse(JSON.stringify(this.form)), 
+                            schedule: JSON.parse(JSON.stringify(this.schedule)) 
+                        } 
+                    };
+                    fetch('/api/scenario', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).then(r => {
+                        if(!r.ok) throw Error("Auth Error");
+                        this.refreshScenarios();
+                        this.scenarioName = ''; 
+                    }).catch(() => alert("Błąd zapisu DB (sesja wygasła?)"));
+                },
+
+                saveAsNewScenario() {
+                    this.activeScenarioId = null;
+                    this.saveScenario();
+                },
+
+                updateActiveScenario() {
+                    if (!this.activeScenarioId) return;
+                    if(!confirm("Ostrzeżenie: Ta operacja trwale podmieni zawartość zapisanego wariantu. Czy chcesz kontynuować?")) return;
+                    
+                    const name = this.scenarioName.trim() || ("Wariant " + new Date().toLocaleTimeString());
+                    const payload = { 
+                        name: name, 
+                        baselineInterest: this.baselineInterest, 
+                        data: { 
+                            form: JSON.parse(JSON.stringify(this.form)), 
+                            schedule: JSON.parse(JSON.stringify(this.schedule)) 
+                        } 
+                    };
+                    fetch('/api/scenario/' + this.activeScenarioId, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).then(r => {
+                        if(!r.ok) throw Error("Auth Error");
+                        this.refreshScenarios();
+                        // Bez irytującego alertu po nadpisaniu - od razu przeładowuje liste
+                    }).catch(() => alert("Błąd zapisu DB (sesja wygasła?)"));
+                },
+
+                deleteScenario(id, index) {
+                    if(!confirm("Na pewno chcesz bezpowrotnie usunąć ten zrzut harmonogramu z bazy danych SQLite?")) return;
+                    fetch('/api/scenario/' + id, { method: 'DELETE' })
+                    .then(r => { if(r.ok) this.scenarios.splice(index, 1); });
+                },
+
+                loadScenario(scenario) {
+                    if(!this.isConnected) return;
+                    this.isHydratingForm = true; 
+                    this.activeScenarioId = scenario.id;
+                    this.scenarioName = scenario.name;
+                    this.baselineInterest = scenario.baselineInterest;
+                    
+                    if (scenario.data && scenario.data.form && Object.keys(scenario.data.form).length > 0) {
+                        this.form = Object.assign({}, this.form, scenario.data.form);
+                        this.form.isDecreasing = String(this.form.isDecreasing);
+                        this.form.shortenTerm = String(this.form.shortenTerm);
+                    }
+
+                    const sched = (scenario.data && scenario.data.schedule) ? scenario.data.schedule : [];
+
+                    if (sched && sched.length > 0) {
+                         this.schedule = JSON.parse(JSON.stringify(sched));
+                         this.schedule.forEach(r => {
+                              if (r.localOverpayment === undefined) r.localOverpayment = r.overpayment || r.computedOverpayment;
+                              if (r.localInterestRate === undefined) r.localInterestRate = r.interestRate;
+                         });
+                         setTimeout(() => this.rebuildChart(), 50);
+                    }
+
+                    this.connection.invoke("HydrateScenario", sched).then(() => {
+                         setTimeout(() => this.isHydratingForm = false, 500);
+                    }).catch(e => {
+                         console.log("Blokada wyłapana:", e);
+                         setTimeout(() => this.isHydratingForm = false, 500);
+                    });
+                },
+
+                exportCSV() {
+                    if (this.schedule.length === 0) return;
+                    let csvFormat = "Miesiac;Saldo_Poczatkowe;Rata_Bazowa;Oprocentowanie;Nadplata_Realna;Spłata_Kapitalu;Spłata_Odsetek\n";
+                    this.schedule.forEach(r => {
+                        csvFormat += `${r.monthId};${r.remainingBalance.toFixed(2).replace('.', ',')};${r.baseInstallment.toFixed(2).replace('.', ',')};${r.interestRate.toFixed(2).replace('.', ',')};${r.computedOverpayment.toFixed(2).replace('.', ',')};${r.principalPortion.toFixed(2).replace('.', ',')};${r.interestPortion.toFixed(2).replace('.', ',')}\n`;
+                    });
+                    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvFormat], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "harmonogram.csv";
+                    link.click();
+                },
+
+                formatCurrency(val) { return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val); },
+
+                applyCascade(row, type) {
+                    if(!this.isConnected) return;
+                    let newOverpayment = type === 'overpayment' ? parseFloat(row.localOverpayment) : null;
+                    let newRate = type === 'rate' ? parseFloat(row.localInterestRate) : null;
+                    this.connection.invoke("CascadeUpdate", row.monthId, newOverpayment, newRate).catch(e => console.log(e));
+                },
+
+                applySingle(row, type) {
+                    if(!this.isConnected) return;
+                    let newOverpayment = type === 'overpayment' ? parseFloat(row.localOverpayment) : null;
+                    let newRate = type === 'rate' ? parseFloat(row.localInterestRate) : null;
+                    this.connection.invoke("SingleUpdate", row.monthId, newOverpayment, newRate).catch(e => console.log(e));
+                },
+
+                rebuildChart() {
+                    if (this.chart) { this.chart.destroy(); this.chart = null; }
+                    const ctx = document.getElementById('mortgageChart');
+                    if (!ctx || this.schedule.length === 0) return;
+
+                    const labels = this.schedule.map(r => r.monthId);
+                    const principalData = this.schedule.map(r => r.principalPortion);
+                    const interestData = this.schedule.map(r => r.interestPortion);
+                    const overpaymentData = this.schedule.map(r => r.computedOverpayment);
+                    const balances = this.schedule.map(r => r.remainingBalance);
+
+                    this.chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                { type: 'line', label: 'Saldo', data: balances, borderColor: '#4f46e5', backgroundColor: '#4f46e5', borderWidth: 2, tension: 0.3, pointRadius: 0, yAxisID: 'yLine' },
+                                { label: 'Nadpłata', data: overpaymentData, backgroundColor: '#10b981', stack: 'Stack 0', yAxisID: 'yBar', categoryPercentage: 1.0, barPercentage: 1.0 },
+                                { label: 'Kapitał', data: principalData, backgroundColor: '#60a5fa', stack: 'Stack 0', yAxisID: 'yBar', categoryPercentage: 1.0, barPercentage: 1.0 },
+                                { label: 'Odsetki', data: interestData, backgroundColor: '#fb7185', stack: 'Stack 0', yAxisID: 'yBar', categoryPercentage: 1.0, barPercentage: 1.0 }
+                            ]
+                        },
+                        options: {
+                            animation: false, responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                            plugins: { legend: { position: 'bottom' } },
+                            scales: {  x: { stacked: true, ticks: { maxTicksLimit: 24 } },
+                                       yBar: { type: 'linear', display: true, position: 'left', stacked: true, ticks: { callback: function(v) { return v.toLocaleString(); } } },
+                                       yLine: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: function(v) { return v.toLocaleString(); } } }
+                            }
+                        }
+                    });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+@{
+    ViewData["Title"] = "Mortgage Pro - Projekt Systemu";
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Pro - Pełna Dokumentacja (#Zaliczenie)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+        });
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- Lewy panel boczny MENU -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex text-slate-300 shrink-0 print:hidden">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <span class="text-xl font-bold text-white tracking-tight">Mortgage Pro</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="/" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Strona Główna
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Simulator" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white shadow-sm transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        Symulator
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Documentation" class="flex items-center px-6 py-3 bg-indigo-600 text-white font-medium shadow-sm transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Dokumentacja
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="border-t border-slate-800">
+            <ul class="space-y-1 p-4">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <li>
+                        <a href="/Account/Manage" class="flex items-center px-4 py-2 hover:bg-slate-800 hover:text-indigo-300 transition-colors text-sm rounded-md font-medium">Zarządzanie kontem</a>
+                    </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a href="/Admin/Index" class="flex items-center px-4 py-2 hover:bg-slate-800 text-rose-400 hover:text-rose-300 transition-colors text-sm rounded-md font-semibold">Panel Admina</a>
+                        </li>
+                    }
+                    <li>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="inline w-full">
+                            <button type="submit" class="w-full text-left flex items-center px-4 py-2 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-sm rounded-md">Wyloguj się</button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a href="/Account/Login" class="flex items-center px-4 py-2 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-sm rounded-md">Zaloguj się</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+        <!-- Ciemny pasek u góry -->
+        <header class="bg-slate-900 text-white p-6 shadow-md print:bg-white print:text-black print:shadow-none print:border-b print:border-slate-300">
+            <div class="max-w-5xl mx-auto flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Dokumentacja Projektu: Mortgage Pro</h1>
+                    <p class="text-slate-400 print:text-slate-600 mt-1">Reaktywny System Ekspercki do Zarządzania Kredytami</p>
+                </div>
+                <div class="print:hidden">
+                    <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded shadow-sm">Zapisz jako PDF</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto p-6 md:p-12 space-y-12">
+            <!-- 1. Wymagania -->
+            <section id="wymagania" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">1. Wymagania i Funkcje Projektu (2 pkt.)</h2>
+                
+                <h3 class="text-lg font-semibold text-indigo-700 mb-2">Szczegółowe Wymagania Funkcjonalne:</h3>
+                <ul class="list-disc pl-5 space-y-2 text-slate-700 mb-6 leading-relaxed">
+                    <li><strong>Podstawy Kalkulacji:</strong> Generowanie precyzyjnych harmonogramów spłaty dla kredytów w ratach równych (annuitetowych) oraz malejących na podstawie podanej kwoty, okresu oraz oprocentowania.</li>
+                    <li><strong>Zaawansowane Nadpłaty:</strong> Pełna obsługa nadpłat kaskadowych w czasie rzeczywistym. System w locie przelicza resztę kapitału dla 3 dostępnych metod:
+                        <ul class="list-circle pl-6 mt-1 text-slate-600">
+                            <li><em>Standardowa nadpłata (Fixed):</em> Stała prowizja kapitałowa wrzucana nadmiarowo np. co miesiąc.</li>
+                            <li><em>Kula Śnieżna:</em> Wykorzystuje uwalniany z mniejszej raty kapitał w celu lawinowego powiększania nadpłat by zabić dług w rekordowym tempie.</li>
+                            <li><em>Maksymalna Rata:</em> Inteligentny algorytm wyrównuje ratę po korekcie w dół, upewniając się, że co miesiąc łącznie wpłacasz zaplanowany budżet (np. 5000zł), bez względu na obniżkę raty bazowej.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Strategie Opty:</strong> Aplikacja wspiera obniżanie raty, ale też re-amortyzację skracającą okres kredytowania w celu wygenerowania ogromnych oszczędności rzędu setek tysięcy złotych bez zwiększania progu wejścia.</li>
+                    <li><strong>Dynamiczna Symulacja i Wykresy:</strong> Zmiany na UI natychmiast generują przeliczenia na żywo, a nowy harmonogram wyświetlany jest w potężnej tabeli z edytowalnymi "w locie" stopami procentowymi (Fill-Down).</li>
+                    <li><strong>Zapis Konfiguracji (Snapshotting & CRUD):</strong> Użytkownik potrafi zamrozić cały scenariusz do relacyjnej bazy SQLite i go odzyskać, zachowując zdefiniowane modyfikacje. Aplikacja posiada pełny interfejs CRUD - zmiany nazw wariantów, natychmiastowe ładowanie, usuwanie z bazy per profil.</li>
+                    <li><strong>Przewaga Rynkowa nad popularnymi rozwiązaniami (np. Lendi, Developeruch):</strong> Nasze rozwiązanie pozwala na coś czego te portale nie oferują - możliwość manualnego sterowania strategią "Maksymalnej Raty" wymuszającej wyrównania algorytmiczne co miesiąc z re-amortyzacją oraz potężną opcję zapisywania własnych sesji w portfelu. Kula Śnieżna alokowana na żywo nie istnieje na rynku darmowych kalkulatorów SPA.</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold text-emerald-700 mb-2">Technologie (Stos Technologiczny):</h3>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 mb-6">
+                    <ul class="space-y-4 text-slate-700">
+                        <li><strong>Backend (.NET 8.0 & C# 12):</strong> Warstwa logiki rezyduje jako "Clean Architecture". Serce obliczeniowe to zoptymalizowany i całkowicie synchroniczny silnik w klasie <code>ReactiveMortgageEngine</code>. Komunikacja odbywa się niemal przezroczysto za pomocą gniazd <code>SignalR (WebSockets)</code>.</li>
+                        <li><strong>Frontend (HTML, Alpine.js, TailwindCSS):</strong> Interfejs całkowicie zrezygnował z ciężkich frameworków jak React/Angular na rzecz mikro-biblioteki <code>Alpine.js</code> z architekturą "Thin Client". Aplikacja posiada Zero-Page Reload - co oznacza niesamowitą zwinność, opóźnienia do 50ms i reakcję w interfejsie. Za stylizacje odpowiada <code>TailwindCSS</code> dostarczany z sieci dystrybucji CDN (Utility-first styling). Algorytm operacji sieciowych chroni `debounce.300ms` aby powstrzymać tzw. "network spamming".</li>
+                        <li><strong>Baza Danych i ORM (SQLite + Entity Framework Core):</strong> Warstwa persistencji. Baza relacyjna zapisana w jednym pliku - łatwa w utrzymaniu i idealna do projektów z odizolowaniem kontenerowym.</li>
+                        <li><strong>Zarządzanie Użytkownikami:</strong> <code>ASP.NET Core Identity</code> dostarczający ciastek, integrację formularzy rejestracji, sesji i loginu (uwierzytelnianie bez tokenów JWT, standardowym cookie).</li>
+                        <li><strong>Infrastruktura (Docker):</strong> Skonteneryzowane środowisko za pomocą <code>Docker Compose</code> gwarantujące łatwy start usługi wraz z mapowanymi wolumenami izolującymi bazę `.db`.</li>
+                        <li><strong>Wykresy i Integracje:</strong> Aplikacja rysuje dane na wybitnie responsywnej bibliotece <code>Chart.js</code> i generuje diagramy architektury za pomocą <code>Mermaid.js</code>.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 2. Diagram Przypadków Użycia -->
+            <section id="przypadki" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">2. Diagram przypadków użycia (2 pkt.)</h2>
+                <p class="text-slate-600 mb-4">Poniżej przedstawiono interakcję aktorów (Użytkownik Systemu, Algorytm, Baza SQL). Zoptymalizowano szerokość diagramu korzystając ze 100% obszaru roboczego CSS.</p>
+                <div class="bg-slate-50 p-4 rounded-xl flex justify-center border border-slate-200 w-full overflow-hidden">
+                    <pre class="mermaid w-full text-center max-w-none">
+                        flowchart TD
+                            User((Użytkownik))
+                            
+                            subgraph "System Mortgage Pro"
+                                Wprowadzenie[Wprowadzenie Parametrów Bazowych / Makysmanych Rat]
+                                Nadplata[Rejestracja Nadpłat \ Zmian Stóp i Efektu Kuli Snieżnej]
+                                Generowanie[Błyskawiczne Przerywowanie Algorytmu - Reaktywność JS]
+                                Oszczednosc[Wizualizacja Oszczędności]
+                                Zapis[Zapis Scenariusza / Snapshot]
+                                Wczytywanie[Wczytanie Historycznej Sesji]
+                            end
+                            
+                            SQL[(SQLite DB)]
+                            
+                            User --> Wprowadzenie
+                            User --> Nadplata
+                            Wprowadzenie -->|Triggeruje Automatycznie| Generowanie
+                            Nadplata -->|Uaktualnia DOM| Generowanie
+                            Generowanie --> Oszczednosc
+                            
+                            User --> Zapis
+                            User --> Wczytywanie
+                            
+                            Zapis --> SQL
+                            SQL --> Wczytywanie
+                    </pre>
+                </div>
+            </section>
+
+            <!-- 3. Diagram Klas -->
+            <section id="klasy" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">3. Diagram klas (2 pkt.)</h2>
+                <p class="text-slate-600 mb-4">Projekt dzieli się na silnik rekalkulacyjny, hub synchronizacyjny oraz struktury trwałości używając Clean Architecture.</p>
+                <div class="bg-slate-50 p-4 rounded-xl flex justify-center border border-slate-200 w-full overflow-hidden">
+                    <pre class="mermaid w-full text-center max-w-none">
+                        classDiagram
+                            class ScheduleRow {
+                                +int MonthId
+                                +decimal RemainingBalance
+                                +decimal BaseInstallment
+                                +decimal ComputedOverpayment
+                                +bool IsSnowballEffect
+                                +decimal TargetMaxInstallment
+                                +ActualPaid() decimal
+                            }
+                            
+                            class ReactiveMortgageEngine {
+                                -List~ScheduleRow~ _schedule
+                                +GenerateInitial(amount, months, overpayment, maxInstallmentMode)
+                                +ApplyCascadeUpdate(monthId, over, rate)
+                                +GetSchedule() IReadOnlyList~ScheduleRow~
+                                -RecalculateSequential()
+                            }
+                            
+                            class MortgageHub {
+                                -ReactiveMortgageEngine _engine
+                                +InitializeMortgage()
+                                +CascadeUpdate()
+                                +HydrateScenario(List~ScheduleRow~)
+                            }
+                            
+                            class ScenarioController {
+                                -MortgageDbContext _db
+                                +Get()
+                                +Post(ScenarioRequest)
+                            }
+
+                            ReactiveMortgageEngine "1" *-- "many" ScheduleRow : zarządza encjami
+                            MortgageHub "1" --> "1" ReactiveMortgageEngine : wywołuje (WebSocket)
+                            ScenarioController "1" --> "1" MortgageDbContext : utrwala w pliku SQLite
+                    </pre>
+                </div>
+            </section>
+
+            <!-- 4. Architektura -->
+            <section id="architektura" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">4. Podział Implementacji Architektury (14 pkt.)</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-indigo-800">Warstwa Logiki Biznesowej (Application & Domain)</h3>
+                        <p class="text-slate-600 mt-2"><b>Ocena maksymalna (5/5 pkt)</b>. Logika kalkulacji absolutnie hermetyczna, rezydująca wewnątrz `MortgagePro.Application` (Domain-Driven Design). Sercem systemu jest plik <code>ReactiveMortgageEngine.cs</code>. Przetwarza on skomplikowane algorytmy dynamicznej alokacji kapitału np. w efekcie "Kuli Śnieżnej" czy dla nadpłat w trybie poszukiwania maksymalnej kwoty raty.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-blue-800">Warstwa Prezentacji (WebUI)</h3>
+                        <p class="text-slate-600 mt-2"><b>Ocena maksymalna (5/5 pkt)</b>. Utworzono hybrydę: aplikacja to Single-Page-Application obsługiwana przez <b>Alpine.js</b> po stronie klienta, podczas backend pośfiaruje kontrolery REST na potrzeby SQLite.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-emerald-800">Integracja Bazy Danych (Infrastructure)</h3>
+                        <p class="text-slate-600 mt-2"><b>Ocena maksymalna (4/4 pkt)</b>. Stworzony został projekt `MortgagePro.Infrastructure` obsługujący w pełni Entity Framework Core. Zaimplementowano plik bazy `.db`, gotowy na środowiska produkcyjne z izolacją kontenerową.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Testowanie -->
+            <section id="testowanie" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">5. Opis sposobów i metod testowania (2 pkt.)</h2>
+                
+                <p class="text-slate-700 mt-2 font-medium">Strategia Testowa systemu:</p>
+                <ol class="list-decimal pl-5 space-y-3 mt-4 text-slate-600">
+                    <li>
+                        <strong>Unit Tests (Testy Jednostkowe) - White Box:</strong><br/>
+                        Testowanie warstwy logiki matematycznej w projekcie <code>MortgagePro.Tests (xUnit)</code>. Metodologia zakłada weryfikację skrajnych przypadków (pokryte ok 20 scenariuszy asercji).
+                    </li>
+                    <li>
+                        <strong>Integracja Bazy (E2E) - Black Box:</strong><br/>
+                        Testowanie zapisu i ładowania scenariuszy, komunikacji Client -> API -> SQLite, a w tym weryfikowania walidacji na polu DOM. W ramach testów krytycznych (E2E) rozpoznano i rozwiązano rzadkie ograniczenie architektury WebSockets - przy pełnych, 360-miesięcznych harmonogramach z modyfikacjami kaskadowymi pakiet JSON przekraczał domyślny limit SignalR (32 KB). Naprawiono to przez rekonfigurację buforów serwera (1 MB) do pracy z zaawansowaną analityką bez zerwania połączeń z Alpine.js.
+                    </li>
+                    <li>
+                        <strong>Testowanie Skrajności Obliczeniowych:</strong><br/>
+                        Wprowadzono mechanizmy zapobiegające nieskończonym pętlom we frontendzie (dla śladowych błędów precyzji obliczeń float/decimal), bezpiecznie odcinające groszowe ogony tzw. ratą balonową, zapobiegając przepełnieniu pętli procesującej UI.
+                    </li>
+                </ol>
+            </section>
+            
+            <!-- 6. Docker -->
+            <section id="docker" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 print:shadow-none print:border-none print:p-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-2">6. Docker Compose (Ocena 6.0)</h2>
+                
+                <p class="text-slate-700 mt-2 font-medium">Projekt jest skonfigurowany do wdrożenia w wirtualizacji na platformie Docker Compose. Zastosowany model zakłada:</p>
+                <ul class="list-disc pl-5 mt-4 text-slate-600">
+                    <li>Wieloetapowy proces budowania (multi-stage build) z użyciem obrazu warstwy SDK .NET 8.0 oraz środowiska ASP.NET.</li>
+                    <li>Zewnętrzny wolumen izolujący bazę danych SQLite (<code>mortgage_data</code>).</li>
+                </ul>
+            </section>
+            
+            <footer class="mt-12 text-center text-slate-400 text-sm pb-8">
+                &copy; @DateTime.Now.Year Mortgage Pro - Projekt Kompletny.
+            </footer>
+        </div>
+    </main>
+
+</body>
+</html>

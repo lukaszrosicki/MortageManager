@@ -1,0 +1,17 @@
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Infrastructure.deps.json
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Infrastructure.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Infrastructure.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Application.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Domain.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Application.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\bin\Debug\net10.0\MortgagePro.Domain.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.AssemblyInfo.cs
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\Mortgage.97B5A58D.Up2Date
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\refint\MortgagePro.Infrastructure.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.pdb
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\ref\MortgagePro.Infrastructure.dll

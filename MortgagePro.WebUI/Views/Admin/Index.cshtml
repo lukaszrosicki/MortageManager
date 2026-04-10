@@ -1,0 +1,101 @@
+@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
+@{
+    ViewData["Title"] = "Panel Administratora";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Mortgage Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col text-slate-300">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <span class="text-xl font-bold text-white tracking-tight">Mortgage Pro</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="/" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Opuść Panel (Strona Główna)
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="border-t border-slate-800">
+            <ul class="space-y-1 p-4">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <li>
+                        <a href="/Account/Manage" class="flex items-center px-4 py-2 hover:bg-slate-800 hover:text-indigo-300 transition-colors text-sm rounded-md font-medium">Zarządzanie kontem</a>
+                    </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a href="/Admin/Index" class="flex items-center px-4 py-2 hover:bg-slate-800 text-rose-400 hover:text-rose-300 transition-colors text-sm rounded-md font-semibold">Panel Admina</a>
+                        </li>
+                    }
+                    <li>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="inline w-full">
+                            <button type="submit" class="w-full text-left flex items-center px-4 py-2 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-sm rounded-md">Wyloguj się</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-slate-800">Panel Zarządzania (Admin)</h1>
+            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-3 py-1 rounded-full border border-rose-200">Strefa Zastrzeżona</span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 bg-slate-50">
+                <h2 class="text-lg font-bold text-slate-700">Zarejestrowani Użytkownicy w bazie SQLite</h2>
+            </div>
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-100 text-slate-500 uppercase text-xs font-semibold">
+                    <tr>
+                        <th class="px-6 py-4 border-b border-slate-200">ID Systemowe</th>
+                        <th class="px-6 py-4 border-b border-slate-200">E-mail (Login)</th>
+                        <th class="px-6 py-4 border-b border-slate-200">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach(var user in Model)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-slate-400 font-mono text-xs">@user.Id</td>
+                            <td class="px-6 py-4 font-bold text-slate-700">@user.Email</td>
+                            <td class="px-6 py-4">
+                                @if (user.Email == "admin@admin.com")
+                                {
+                                    <span class="text-xs text-rose-500 font-bold bg-rose-50 px-2 py-1 rounded">SuperUser (Chroń)</span>
+                                }
+                                else
+                                {
+                                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Czy ubić to konto twardo z bazy?');">
+                                        <button type="submit" class="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded shadow-sm">Usuń Konto</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Any())
+            {
+                <div class="p-6 text-center text-slate-500 italic">Baza użytkowników jest pusta.</div>
+            }
+        </div>
+    </main>
+</body>
+</html>
