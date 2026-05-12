@@ -1,0 +1,43 @@
+# Build artifacts (MSBuild / SDK)
+**/bin/
+**/obj/
+artifacts/
+
+# Published output (local dotnet publish)
+**/publish/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.sln.docstates
+*.DotSettings.user
+
+# IDE folders
+.vs/
+.vscode/
+.idea/
+
+# .NET test and coverage outputs
+TestResults/
+*.coverage
+*.coveragexml
+CoverageReport/
+coverage*.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# SQLite (lokalny plik DB + journaling)
+*.db
+*.db-shm
+*.db-wal
+
+# Local secrets (optional)
+**/appsettings.*.local.json
+.env
+.env.*
