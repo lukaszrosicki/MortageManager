@@ -15,3 +15,4 @@ C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\o
 C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\refint\MortgagePro.Infrastructure.dll
 C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.pdb
 C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\ref\MortgagePro.Infrastructure.dll
+C:\Users\rosic\OneDrive\Repozytorium\MortageManager\MortgagePro.Infrastructure\obj\Debug\net10.0\MortgagePro.Infrastructure.sourcelink.json
