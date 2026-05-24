@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MortgagePro.WebUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57027f9ec56ca3db176619e02e46610dd0ff6112")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac6955dd6ad5a2a8cffcf99fb535d15fb8e2b587")]
 [assembly: System.Reflection.AssemblyProductAttribute("MortgagePro.WebUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MortgagePro.WebUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
